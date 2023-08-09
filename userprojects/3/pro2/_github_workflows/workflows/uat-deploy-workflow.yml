@@ -1,0 +1,57 @@
+# on:
+#   push:
+#     branches:
+#       - uat
+#   workflow_dispatch:
+
+env:
+  NODE_VERSION: "14.x" # set this to the node version to use
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+  pull:
+    needs: build
+    name: Pull latest code
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.UAT_HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            git pull origin uat --rebase
+            git pull origin uat --rebase
+  deploy:
+    needs: pull
+    name: Deploy latest changes
+    runs-on: ubuntu-20.04
+    steps:
+      - name: executing remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.UAT_HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            timedatectl set-timezone UTC
+            npm --no-audit install
+            npm link phantomjs-prebuilt
+            sh deploy.sh
+            if [ -d ${{ secrets.ARTIFACT_PATH }}+"/build/index.js" ] 
+            then
+                echo "File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js exists."
+                
+            else
+                echo "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+                throw "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+            fi
+            sleep 30 &&
+            curl http://localhost:446
