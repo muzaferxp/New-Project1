@@ -1,0 +1,402 @@
+# on:
+#   push:
+#     branches:
+#       - prod
+#   workflow_dispatch:
+
+env:
+  NODE_VERSION: "14.x" # set this to the node version to use
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+  pull-1:
+    needs: build
+    name: Pull latest code in cluster-1
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_1 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            git pull origin prod --rebase
+            git pull origin prod --rebase
+  deploy-1:
+    needs: pull-1
+    name: Deploy latest changes in cluster-1
+    runs-on: ubuntu-20.04
+    steps:
+      - name: executing remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_1 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            timedatectl set-timezone UTC
+            npm --no-audit install
+            npm link phantomjs-prebuilt
+            sh master-deploy.sh
+            if [ -d ${{ secrets.ARTIFACT_PATH }}+"/build/index.js" ] 
+            then
+                echo "File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js exists."
+                
+            else
+                echo "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+                throw "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+            fi
+            sleep 50 &&
+            curl http://localhost:446
+  pull-2:
+    needs: deploy-1
+    name: Pull latest code in cluster-2
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_2 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            git pull origin prod --rebase
+            git pull origin prod --rebase
+  deploy-2:
+    needs: pull-2
+    name: Deploy latest changes in cluster-2
+    runs-on: ubuntu-20.04
+    steps:
+      - name: executing remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_2 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            timedatectl set-timezone UTC
+            npm --no-audit install
+            npm link phantomjs-prebuilt
+            sh deploy.sh
+            if [ -d ${{ secrets.ARTIFACT_PATH }}+"/build/index.js" ] 
+            then
+                echo "File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js exists."
+                
+            else
+                echo "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+                throw "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+            fi
+            sleep 50 &&
+            curl http://localhost:446
+  pull-3:
+    needs: deploy-1
+    name: Pull latest code in cluster-3
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_3 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            git pull origin prod --rebase
+            git pull origin prod --rebase
+  deploy-3:
+    needs: pull-3
+    name: Deploy latest changes in cluster-3
+    runs-on: ubuntu-20.04
+    steps:
+      - name: executing remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_3 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            timedatectl set-timezone UTC
+            npm --no-audit install
+            npm link phantomjs-prebuilt
+            sh deploy.sh
+            if [ -d ${{ secrets.ARTIFACT_PATH }}+"/build/index.js" ] 
+            then
+                echo "File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js exists."
+                
+            else
+                echo "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+                throw "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+            fi
+            sleep 50 &&
+            curl http://localhost:446
+  pull-4:
+    needs: deploy-1
+    name: Pull latest code in cluster-4
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_4 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            git pull origin prod --rebase
+            git pull origin prod --rebase
+  deploy-4:
+    needs: pull-4
+    name: Deploy latest changes in cluster-4
+    runs-on: ubuntu-20.04
+    steps:
+      - name: executing remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_4 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            timedatectl set-timezone UTC
+            npm --no-audit install
+            npm link phantomjs-prebuilt
+            sh deploy.sh
+            if [ -d ${{ secrets.ARTIFACT_PATH }}+"/build/index.js" ] 
+            then
+                echo "File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js exists."
+                
+            else
+                echo "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+                throw "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+            fi
+            sleep 50 &&
+            curl http://localhost:446
+  pull-5:
+    needs: deploy-1
+    name: Pull latest code in cluster-5
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_5 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            git pull origin prod --rebase
+            git pull origin prod --rebase
+  deploy-5:
+    needs: pull-5
+    name: Deploy latest changes in cluster-5
+    runs-on: ubuntu-20.04
+    steps:
+      - name: executing remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_5 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            timedatectl set-timezone UTC
+            npm --no-audit install
+            npm link phantomjs-prebuilt
+            sh deploy.sh
+            if [ -d ${{ secrets.ARTIFACT_PATH }}+"/build/index.js" ] 
+            then
+                echo "File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js exists."
+                
+            else
+                echo "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+                throw "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+            fi
+            sleep 50 &&
+            curl http://localhost:446
+  pull-6:
+    needs: deploy-1
+    name: Pull latest code in cluster-6
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_6 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            git pull origin prod --rebase
+            git pull origin prod --rebase
+  deploy-6:
+    needs: pull-6
+    name: Deploy latest changes in cluster-6
+    runs-on: ubuntu-20.04
+    steps:
+      - name: executing remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_6 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            timedatectl set-timezone UTC
+            npm --no-audit install
+            npm link phantomjs-prebuilt
+            sh deploy.sh
+            if [ -d ${{ secrets.ARTIFACT_PATH }}+"/build/index.js" ] 
+            then
+                echo "File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js exists."
+                
+            else
+                echo "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+                throw "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+            fi
+            sleep 50 &&
+            curl http://localhost:446
+  pull-7:
+    needs: deploy-1
+    name: Pull latest code in cluster-7
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_7 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            git pull origin prod --rebase
+            git pull origin prod --rebase
+  deploy-7:
+    needs: pull-7
+    name: Deploy latest changes in cluster-7
+    runs-on: ubuntu-20.04
+    steps:
+      - name: executing remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_7 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            timedatectl set-timezone UTC
+            npm --no-audit install
+            npm link phantomjs-prebuilt
+            sh deploy.sh
+            if [ -d ${{ secrets.ARTIFACT_PATH }}+"/build/index.js" ] 
+            then
+                echo "File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js exists."
+                
+            else
+                echo "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+                throw "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+            fi
+            sleep 50 &&
+            curl http://localhost:446
+  pull-8:
+    needs: deploy-1
+    name: Pull latest code in cluster-8
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_8 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            git pull origin prod --rebase
+            git pull origin prod --rebase
+  deploy-8:
+    needs: pull-8
+    name: Deploy latest changes in cluster-8
+    runs-on: ubuntu-20.04
+    steps:
+      - name: executing remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_8 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.ARTIFACT_PATH }}
+            timedatectl set-timezone UTC
+            npm --no-audit install
+            npm link phantomjs-prebuilt
+            sh deploy.sh
+            if [ -d ${{ secrets.ARTIFACT_PATH }}+"/build/index.js" ] 
+            then
+                echo "File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js exists."
+                
+            else
+                echo "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+                throw "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+            fi
+            sleep 50 &&
+            curl http://localhost:446
+
+  pull-9:
+    needs: deploy-1
+    name: Pull latest code in cluster-9
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_9 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd signal-be
+            git pull origin prod --rebase
+            git pull origin prod --rebase
+  deploy-9:
+    needs: pull-9
+    name: Deploy latest changes in cluster-9
+    runs-on: ubuntu-20.04
+    steps:
+      - name: executing remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST_9 }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd signal-be
+            timedatectl set-timezone UTC
+            npm --no-audit install
+            npm link phantomjs-prebuilt
+            sh deploy.sh
+            if [ -d ${{ secrets.ARTIFACT_PATH }}+"/build/index.js" ] 
+            then
+                echo "File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js exists."
+                
+            else
+                echo "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+                throw "Error: File "+${{ secrets.ARTIFACT_PATH }}+"/build/index.js does not exists."
+            fi
+            sleep 50 &&
+            curl http://localhost:446
